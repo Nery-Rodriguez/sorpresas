@@ -8,34 +8,35 @@
   @import url('https://fonts.googleapis.com/css2?family=Parisienne&family=Lora:ital,wght@0,400;0,600;1,400&family=Quicksand:wght@500;600;700&display=swap');
 
   :root{
-    --cream:#FFF8E7;
-    --cream-2:#FEF0CE;
-    --gold:#F4B740;
-    --amber:#C97B1F;
-    --ink:#4A3B22;
-    --ink-soft:#7A6A45;
-    --rose:#E8A0A0;
-    --leaf:#7A9B57;
-    --paper:#FFFDF7;
-    --shadow: 20 15% 30%;
+    --bg:#EEF1F6;
+    --bg-2:#DCE3EC;
+    --navy:#1F3A5C;
+    --ink:#22324A;
+    --ink-soft:#55647D;
+    --paper:#FFFDF9;
+    --env-1:#F1E8D3;
+    --env-2:#D9C6A0;
+    --shadow: 215 25% 22%;
   }
 
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --cream:#2A2113; --cream-2:#332818; --gold:#E8B04B; --amber:#F2C568;
-      --ink:#F6E9CC; --ink-soft:#D8C6A0; --rose:#E0A6A6; --leaf:#9CB97E; --paper:#352A18;
+      --bg:#141A24; --bg-2:#1C2433; --navy:#8FB3DE;
+      --ink:#E7ECF3; --ink-soft:#B8C3D3; --paper:#1E2A3D;
+      --env-1:#4A4030; --env-2:#3A3222; --shadow: 215 25% 8%;
     }
   }
   :root[data-theme="dark"]{
-    --cream:#2A2113; --cream-2:#332818; --gold:#E8B04B; --amber:#F2C568;
-    --ink:#F6E9CC; --ink-soft:#D8C6A0; --rose:#E0A6A6; --leaf:#9CB97E; --paper:#352A18;
+    --bg:#141A24; --bg-2:#1C2433; --navy:#8FB3DE;
+    --ink:#E7ECF3; --ink-soft:#B8C3D3; --paper:#1E2A3D;
+    --env-1:#4A4030; --env-2:#3A3222; --shadow: 215 25% 8%;
   }
 
   *{box-sizing:border-box;}
   html, body{ height:auto; min-height:100%; }
   body{
     margin:0;
-    background: radial-gradient(circle at 50% 0%, var(--cream-2), var(--cream) 70%);
+    background: radial-gradient(circle at 50% 0%, var(--bg-2), var(--bg) 70%);
     color:var(--ink);
     font-family:'Lora', Georgia, serif;
     padding-inline:16px;
@@ -67,9 +68,9 @@
     font-size:1.15rem;
     display:flex; align-items:center; justify-content:center;
     cursor:pointer;
-    color:var(--amber);
+    color:var(--navy);
   }
-  .sound-toggle:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+  .sound-toggle:focus-visible{ outline:2px solid var(--navy); outline-offset:2px; }
 
   main{
     position:relative; z-index:1; max-width:480px; margin-inline:auto;
@@ -78,12 +79,12 @@
 
   .eyebrow{
     font-family:'Quicksand',sans-serif; font-weight:700; letter-spacing:.14em;
-    text-transform:uppercase; font-size:.72rem; color:var(--amber);
+    text-transform:uppercase; font-size:.72rem; color:var(--navy);
   }
   h1{
     font-family:'Parisienne', cursive; font-weight:400;
     font-size:clamp(2.4rem, 9vw, 3.4rem); margin:0; line-height:1.15;
-    color:var(--amber); text-wrap:balance;
+    color:var(--navy); text-wrap:balance;
   }
   .sub{ font-family:'Quicksand',sans-serif; color:var(--ink-soft); font-size:.95rem; margin-top:-10px; }
 
@@ -104,19 +105,19 @@
   .envelope{ position:relative; width:100%; aspect-ratio: 3 / 2; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .env-body{
     position:absolute; inset:0;
-    background:linear-gradient(180deg, var(--paper), var(--cream-2));
+    background:linear-gradient(180deg, var(--paper), var(--env-1));
     border-radius:10px;
     box-shadow:0 18px 30px -14px hsl(var(--shadow) / .35), 0 2px 0 hsl(var(--shadow)/.08) inset;
     overflow:hidden;
   }
   .env-body::before, .env-body::after{
-    content:""; position:absolute; top:0; width:0; height:0; border-top: 90px solid var(--cream-2);
+    content:""; position:absolute; top:0; width:0; height:0; border-top: 90px solid var(--env-1);
   }
   .env-body::before{ left:0; border-right: 170px solid transparent; }
   .env-body::after{ right:0; border-left: 170px solid transparent; }
   .env-flap{
     position:absolute; top:0; left:0; right:0; height:52%;
-    background:linear-gradient(160deg, var(--gold), var(--amber));
+    background:linear-gradient(160deg, var(--env-1), var(--env-2));
     clip-path: polygon(0 0, 100% 0, 50% 100%);
     transform-origin:top;
     transition: transform .7s cubic-bezier(.6,-0.28,.32,1.3);
@@ -125,7 +126,7 @@
   .envelope.open .env-flap{ transform: rotateX(180deg); }
   .seal{
     position:absolute; top:40%; left:50%; width:54px; height:54px; transform:translate(-50%,-50%);
-    background: radial-gradient(circle at 35% 30%, var(--gold), var(--amber) 70%);
+    background: radial-gradient(circle at 35% 30%, var(--env-1), var(--env-2) 70%);
     border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem;
     box-shadow:0 4px 8px hsl(var(--shadow)/.35); z-index:4;
     transition:opacity .4s ease, transform .4s ease;
@@ -141,7 +142,7 @@
   .envelope-to{
     position:absolute; left:0; right:0; bottom:12%; z-index:2;
     text-align:center; pointer-events:none;
-    font-family:'Parisienne', cursive; font-size:1.35rem; color:var(--amber);
+    font-family:'Parisienne', cursive; font-size:1.35rem; color:var(--navy);
   }
   .envelope.open .envelope-to{ opacity:0; transition:opacity .3s ease; }
   .tap-hint{ font-family:'Quicksand',sans-serif; font-size:.8rem; color:var(--ink-soft); margin-top:2px; }
@@ -179,31 +180,31 @@
   }
   .slide img{
     width:100%; aspect-ratio:4/5; object-fit:cover; display:block;
-    border-radius:6px; background:var(--cream-2);
+    border-radius:6px; background:var(--bg-2);
   }
   .dots{ display:flex; justify-content:center; gap:7px; margin-top:12px; }
   .dot{
     width:7px; height:7px; border-radius:50%; border:none; padding:0;
-    background:var(--cream-2); cursor:pointer;
+    background:var(--bg-2); cursor:pointer;
     transition: background .3s ease, transform .3s ease;
   }
-  .dot.active{ background:var(--amber); transform:scale(1.35); }
+  .dot.active{ background:var(--navy); transform:scale(1.35); }
   .carousel-caption{
     font-family:'Parisienne', cursive; font-size:1.1rem; color:var(--ink-soft);
     text-align:center; margin-top:6px;
   }
 
   .salutation{
-    font-family:'Parisienne', cursive; font-size:1.5rem; color:var(--amber);
+    font-family:'Parisienne', cursive; font-size:1.5rem; color:var(--navy);
     text-align:left; margin:6px 0 4px;
   }
   .letter-body{ text-align:left; color:var(--ink); font-size:1.02rem; line-height:1.75; margin-top:6px; }
   .letter-body p{ margin:0 0 14px; }
   .letter-body .drop{
     font-family:'Parisienne', cursive; font-size:2.6rem; line-height:.6; float:left;
-    margin:8px 6px 0 0; color:var(--amber);
+    margin:8px 6px 0 0; color:var(--navy);
   }
-  .signature{ font-family:'Parisienne', cursive; font-size:1.7rem; color:var(--amber); text-align:right; margin-top:6px; }
+  .signature{ font-family:'Parisienne', cursive; font-size:1.7rem; color:var(--navy); text-align:right; margin-top:6px; }
 
 </style>
 </head>
@@ -432,12 +433,12 @@
       // solid paper wrap / vase at the base — flush with where the stems end
       var wrapH = 0.5;
       var wrapGeo = new THREE.CylinderGeometry(0.4, 0.56, wrapH, 20);
-      var wrapMat = new THREE.MeshStandardMaterial({ color:0xE0A551, roughness:0.55 });
+      var wrapMat = new THREE.MeshStandardMaterial({ color:0xD9C6A0, roughness:0.55 });
       var wrap = new THREE.Mesh(wrapGeo, wrapMat);
       wrap.position.set(0, baseY - wrapH/2, 0);
       bouquet.add(wrap);
       var wrapBandGeo = new THREE.TorusGeometry(0.415, 0.035, 8, 24);
-      var wrapBandMat = new THREE.MeshStandardMaterial({ color:0xC97B1F, roughness:0.5 });
+      var wrapBandMat = new THREE.MeshStandardMaterial({ color:0xB89968, roughness:0.5 });
       var wrapBand = new THREE.Mesh(wrapBandGeo, wrapBandMat);
       wrapBand.rotation.x = Math.PI/2;
       wrapBand.position.set(0, baseY - wrapH*0.22, 0);

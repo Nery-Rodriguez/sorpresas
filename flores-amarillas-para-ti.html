@@ -210,7 +210,7 @@
 <body>
 <div class="field" id="field" aria-hidden="true"></div>
 
-<audio id="bgAudio" src="flores-amarillas.mp3" loop preload="none"></audio>
+<audio id="bgAudio" src="flores-amarillas.mp3" loop preload="auto" playsinline></audio>
 <button class="sound-toggle" id="soundToggle" aria-label="Activar música" aria-pressed="false">🔈</button>
 
 <main>
@@ -293,29 +293,53 @@
   var audioEl = document.getElementById('bgAudio');
   var soundBtn = document.getElementById('soundToggle');
   var musicOn = false;
+  var userMuted = false;   // she explicitly hit the speaker to silence it
+  var wantsMusic = false;  // the envelope tap asked for music to play
 
-  function startMusic(){
-    if(!audioEl) return;
-    var p = audioEl.play();
-    if(p && p.then){
-      p.then(function(){
-        musicOn = true;
-        soundBtn.textContent = '🔊';
-        soundBtn.setAttribute('aria-pressed','true');
-        soundBtn.setAttribute('aria-label','Silenciar música');
-      }).catch(function(){ /* autoplay bloqueado o archivo no disponible: seguimos sin romper la pagina */ });
-    }
-  }
-  function stopMusic(){
-    if(!audioEl) return;
-    audioEl.pause();
+  // keep the icon in sync with what the <audio> element actually does,
+  // not just with the first play() attempt (mobile browsers can start
+  // playback slightly later than the click that requested it)
+  audioEl.addEventListener('play', function(){
+    musicOn = true;
+    soundBtn.textContent = '🔊';
+    soundBtn.setAttribute('aria-pressed','true');
+    soundBtn.setAttribute('aria-label','Silenciar música');
+  });
+  audioEl.addEventListener('pause', function(){
     musicOn = false;
     soundBtn.textContent = '🔈';
     soundBtn.setAttribute('aria-pressed','false');
     soundBtn.setAttribute('aria-label','Activar música');
+  });
+
+  function attemptPlay(){
+    if(!audioEl || userMuted) return;
+    var p = audioEl.play();
+    if(p && p.catch){ p.catch(function(){ /* bloqueado por el navegador, se reintenta con el siguiente toque */ }); }
+  }
+  function startMusic(){
+    wantsMusic = true;
+    attemptPlay();
+  }
+  function stopMusic(){
+    if(!audioEl) return;
+    userMuted = true;
+    wantsMusic = false;
+    audioEl.pause();
   }
   soundBtn.addEventListener('click', function(){
-    if(musicOn){ stopMusic(); } else { startMusic(); }
+    if(musicOn){ stopMusic(); } else { userMuted = false; startMusic(); }
+  });
+
+  // mobile browsers sometimes reject the very first play() call even
+  // though it came from a real tap (the envelope). If that happens,
+  // retry on the next tap/swipe anywhere on the page — one of those
+  // is guaranteed to count as a fresh user gesture, so the music
+  // starts without her ever having to find the speaker button.
+  ['pointerdown','touchstart'].forEach(function(evt){
+    document.addEventListener(evt, function(){
+      if(wantsMusic && !musicOn && !userMuted){ attemptPlay(); }
+    }, { passive:true });
   });
 
   /* ---------- 3D bouquet of sunflowers ---------- */

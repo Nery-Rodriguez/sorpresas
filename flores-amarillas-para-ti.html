@@ -151,11 +151,11 @@
   .card.show{ max-height:1600px; opacity:1; padding:30px 24px 26px; transform:translateY(0) scale(1); }
 
   .flower3d-wrap{
-    width:150px; height:150px; margin:0 auto;
+    width:220px; height:190px; margin:0 auto;
     display:flex; align-items:center; justify-content:center;
   }
   .flower3d-wrap canvas{ display:block; }
-  .flower-emoji-fallback{ font-size:3.2rem; }
+  .flower-emoji-fallback{ font-size:3.4rem; }
 
   .carousel-wrap{ width:100%; max-width:300px; margin-inline:auto; }
   .carousel{
@@ -166,11 +166,15 @@
   .carousel::-webkit-scrollbar{ display:none; }
   .slide{
     flex:0 0 100%; scroll-snap-align:center; scroll-snap-stop:always;
-    aspect-ratio:4/5; border-radius:16px; overflow:hidden;
+    background:var(--paper); border-radius:14px;
+    padding:10px 10px 22px;
     box-shadow:0 16px 28px -16px hsl(var(--shadow)/.45);
-    background:var(--cream-2);
+    border:1px solid hsl(var(--shadow)/.08);
   }
-  .slide img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .slide img{
+    width:100%; aspect-ratio:4/5; object-fit:cover; display:block;
+    border-radius:6px; background:var(--cream-2);
+  }
   .dots{ display:flex; justify-content:center; gap:7px; margin-top:12px; }
   .dot{
     width:7px; height:7px; border-radius:50%; border:none; padding:0;
@@ -191,7 +195,6 @@
   }
   .signature{ font-family:'Parisienne', cursive; font-size:1.7rem; color:var(--amber); text-align:right; margin-top:6px; }
 
-  footer{ font-family:'Quicksand',sans-serif; font-size:.78rem; color:var(--ink-soft); margin-top:4px; }
 </style>
 </head>
 <body>
@@ -218,7 +221,7 @@
   </div>
 
   <div class="card" id="card">
-    <div class="flower3d-wrap" id="flower3d"><span class="flower-emoji-fallback" id="flowerFallback" hidden>🌻</span></div>
+    <div class="flower3d-wrap" id="flower3d"><span class="flower-emoji-fallback" id="flowerFallback" hidden>💐</span></div>
 
     <div class="carousel-wrap">
       <div class="carousel" id="carousel">
@@ -249,7 +252,6 @@
     <div class="signature">con todo mi cariño, Nery</div>
   </div>
 
-  <footer>hecho con cariño para el Día de las Flores Amarillas 🌼</footer>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.139.2/three.min.js"></script>
@@ -303,21 +305,45 @@
     if(musicOn){ stopMusic(); } else { startMusic(); }
   });
 
-  /* ---------- 3D rotating sunflower ---------- */
+  /* ---------- 3D bouquet of sunflowers ---------- */
+  function makeSunflower(scale){
+    var f = new THREE.Group();
+
+    var centerGeo = new THREE.SphereGeometry(0.5, 18, 18);
+    var centerMat = new THREE.MeshStandardMaterial({ color:0x6b4423, roughness:0.85 });
+    var center = new THREE.Mesh(centerGeo, centerMat);
+    f.add(center);
+
+    var petalGeo = new THREE.SphereGeometry(0.38, 9, 7);
+    petalGeo.scale(1, 0.4, 0.6);
+    var petalMat = new THREE.MeshStandardMaterial({ color:0xF4B740, roughness:0.55, emissive:0x6b3f00, emissiveIntensity:0.06 });
+    var petalCount = 10;
+    for(var i=0;i<petalCount;i++){
+      var petal = new THREE.Mesh(petalGeo, petalMat);
+      var angle = (i/petalCount) * Math.PI * 2;
+      petal.position.set(Math.cos(angle)*0.85, Math.sin(angle)*0.85, 0);
+      petal.rotation.z = angle;
+      f.add(petal);
+    }
+
+    f.scale.setScalar(scale);
+    return f;
+  }
+
   function initFlower3D(){
     var mount = document.getElementById('flower3d');
     var fallback = document.getElementById('flowerFallback');
     try{
       if(typeof THREE === 'undefined') throw new Error('no three');
-      var size = 150;
+      var w = 220, h = 190;
       var scene = new THREE.Scene();
-      var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-      camera.position.set(0, 1.1, 5.2);
-      camera.lookAt(0, 0.6, 0);
+      var camera = new THREE.PerspectiveCamera(38, w/h, 0.1, 100);
+      camera.position.set(0, 0.9, 6.4);
+      camera.lookAt(0, 0.9, 0);
 
       var renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.setSize(size, size);
+      renderer.setSize(w, h);
       mount.appendChild(renderer.domElement);
 
       var hemi = new THREE.HemisphereLight(0xfff3d6, 0x6b4a1e, 1.0);
@@ -326,45 +352,48 @@
       dir.position.set(2, 3, 4);
       scene.add(dir);
 
-      var group = new THREE.Group();
+      var bouquet = new THREE.Group();
 
-      var centerGeo = new THREE.SphereGeometry(0.55, 20, 20);
-      var centerMat = new THREE.MeshStandardMaterial({ color:0x6b4423, roughness:0.85 });
-      var center = new THREE.Mesh(centerGeo, centerMat);
-      group.add(center);
+      // three sunflowers: tall center one + two shorter, angled outward
+      var layout = [
+        { x: 0,     headY: 1.7,  stemLen: 2.6, scale: 1.0,  rotY: 0,    tilt: 0.05 },
+        { x: -0.95, headY: 1.25, stemLen: 2.1, scale: 0.8,  rotY: -0.5, tilt: -0.28 },
+        { x: 0.95,  headY: 1.3,  stemLen: 2.15, scale: 0.82, rotY: 0.5,  tilt: 0.28 }
+      ];
 
-      var petalGeo = new THREE.SphereGeometry(0.42, 10, 8);
-      petalGeo.scale(1, 0.42, 0.62);
-      var petalMat = new THREE.MeshStandardMaterial({ color:0xF4B740, roughness:0.55, emissive:0x6b3f00, emissiveIntensity:0.06 });
-      var petalCount = 12;
-      for(var i=0;i<petalCount;i++){
-        var petal = new THREE.Mesh(petalGeo, petalMat);
-        var angle = (i/petalCount) * Math.PI * 2;
-        petal.position.set(Math.cos(angle)*0.92, Math.sin(angle)*0.92, 0);
-        petal.rotation.z = angle;
-        group.add(petal);
-      }
-
-      var stemGeo = new THREE.CylinderGeometry(0.09, 0.11, 2.1, 10);
       var stemMat = new THREE.MeshStandardMaterial({ color:0x7A9B57, roughness:0.7 });
-      var stem = new THREE.Mesh(stemGeo, stemMat);
-      stem.position.set(0, -1.6, 0);
-      group.add(stem);
-
-      var leafGeo = new THREE.SphereGeometry(0.4, 10, 8);
-      leafGeo.scale(1, 0.35, 0.5);
+      var leafGeo = new THREE.SphereGeometry(0.32, 9, 7);
+      leafGeo.scale(1, 0.32, 0.48);
       var leafMat = new THREE.MeshStandardMaterial({ color:0x7A9B57, roughness:0.7 });
-      var leaf1 = new THREE.Mesh(leafGeo, leafMat);
-      leaf1.position.set(0.5, -1.3, 0);
-      leaf1.rotation.z = 0.6;
-      group.add(leaf1);
-      var leaf2 = leaf1.clone();
-      leaf2.position.set(-0.5, -1.9, 0);
-      leaf2.rotation.z = -0.6;
-      group.add(leaf2);
 
-      group.position.y = 0.55;
-      scene.add(group);
+      layout.forEach(function(cfg){
+        var stemGeo = new THREE.CylinderGeometry(0.075, 0.09, cfg.stemLen, 8);
+        var stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.set(cfg.x, cfg.headY - cfg.stemLen/2, 0);
+        stem.rotation.z = cfg.tilt * 0.5;
+        bouquet.add(stem);
+
+        var leaf = new THREE.Mesh(leafGeo, leafMat);
+        leaf.position.set(cfg.x + (cfg.x>=0?0.28:-0.28), cfg.headY - cfg.stemLen*0.55, 0);
+        leaf.rotation.z = cfg.x >= 0 ? 0.6 : -0.6;
+        bouquet.add(leaf);
+
+        var head = makeSunflower(cfg.scale);
+        head.position.set(cfg.x + Math.sin(cfg.tilt)*0.3, cfg.headY, 0);
+        head.rotation.y = cfg.rotY;
+        head.rotation.z = cfg.tilt;
+        bouquet.add(head);
+      });
+
+      // ribbon wrap at the base
+      var ribbonGeo = new THREE.CylinderGeometry(0.55, 0.5, 0.35, 16, 1, true);
+      var ribbonMat = new THREE.MeshStandardMaterial({ color:0xC97B1F, roughness:0.6, side:THREE.DoubleSide });
+      var ribbon = new THREE.Mesh(ribbonGeo, ribbonMat);
+      ribbon.position.set(0, -0.15, 0);
+      bouquet.add(ribbon);
+
+      bouquet.position.y = -0.35;
+      scene.add(bouquet);
 
       var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var t = 0;
@@ -372,8 +401,8 @@
         requestAnimationFrame(animate);
         if(!reduceMotion){
           t += 0.008;
-          group.rotation.y += 0.012;
-          group.position.y = 0.55 + Math.sin(t*2)*0.05;
+          bouquet.rotation.y += 0.009;
+          bouquet.position.y = -0.35 + Math.sin(t*2)*0.04;
         }
         renderer.render(scene, camera);
       }
@@ -385,31 +414,61 @@
   }
   initFlower3D();
 
-  /* ---------- photo carousel ---------- */
+  /* ---------- photo carousel (autoplay + swipe) ---------- */
   (function(){
     var carousel = document.getElementById('carousel');
     var dots = Array.prototype.slice.call(document.querySelectorAll('#dots .dot'));
     if(!carousel || !dots.length) return;
-    dots[0].classList.add('active');
+    var slides = Array.prototype.slice.call(carousel.children);
+    var activeIdx = 0;
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function goTo(i, smooth){
+      i = ((i % slides.length) + slides.length) % slides.length;
+      carousel.scrollTo({ left: slides[i].offsetLeft, behavior: smooth === false ? 'auto' : 'smooth' });
+    }
+    function setActive(i){
+      activeIdx = i;
+      dots.forEach(function(d, idx){ d.classList.toggle('active', idx === i); });
+    }
+    setActive(0);
+
     dots.forEach(function(dot){
       dot.addEventListener('click', function(){
-        var i = parseInt(dot.getAttribute('data-i'), 10);
-        var slide = carousel.children[i];
-        if(slide){ carousel.scrollTo({ left: slide.offsetLeft, behavior:'smooth' }); }
+        goTo(parseInt(dot.getAttribute('data-i'), 10));
+        restartAutoplay();
       });
     });
-    var slides = Array.prototype.slice.call(carousel.children);
+
     if('IntersectionObserver' in window){
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(entry){
           if(entry.isIntersecting && entry.intersectionRatio > 0.6){
-            var idx = slides.indexOf(entry.target);
-            dots.forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+            setActive(slides.indexOf(entry.target));
           }
         });
       }, { root: carousel, threshold: [0.6] });
       slides.forEach(function(s){ io.observe(s); });
     }
+
+    var autoplayTimer = null;
+    function startAutoplay(){
+      if(reduceMotion || autoplayTimer) return;
+      autoplayTimer = setInterval(function(){ goTo(activeIdx + 1); }, 3800);
+    }
+    function stopAutoplay(){
+      if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer = null; }
+    }
+    function restartAutoplay(){
+      stopAutoplay();
+      setTimeout(startAutoplay, 4500);
+    }
+    carousel.addEventListener('pointerdown', function(){ stopAutoplay(); });
+    carousel.addEventListener('touchstart', function(){ stopAutoplay(); }, { passive:true });
+    carousel.addEventListener('pointerup', restartAutoplay);
+    carousel.addEventListener('touchend', restartAutoplay, { passive:true });
+
+    startAutoplay();
   })();
 
   /* ---------- envelope open -> card reveal ---------- */
